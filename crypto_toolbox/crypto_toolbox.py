@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
 
+import matplotlib.pyplot as plt
 
 from freq_analysis import FrequencyToolApp
 from ioc_vigenere import IOCVisualizerApp
@@ -29,6 +30,7 @@ class CryptoToolboxApp:
         self.root.state('zoomed')
         configure_school_theme(root)
         self.root.protocol('WM_DELETE_WINDOW', self.close_application)
+        self.is_closing = False
 
         frame = ttk.Frame(root, padding=(36, 28))
         frame.pack(fill='both', expand=True)
@@ -67,6 +69,12 @@ class CryptoToolboxApp:
         return self.shared_text.get('1.0', 'end').strip()
 
     def close_application(self):
+        if self.is_closing:
+            return
+
+        self.is_closing = True
+        plt.close('all')
+        self.root.quit()
         self.root.destroy()
 
     def open_frequency_tool(self):
