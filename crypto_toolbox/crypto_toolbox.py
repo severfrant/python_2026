@@ -21,6 +21,14 @@ def configure_school_theme(root: tk.Tk) -> None:
     style.map('Tool.IOC.TButton', background=[('active', '#1D4ED8')])
     style.configure('Tool.Kasiski.TButton', font=('Segoe UI', 12, 'bold'), background='#B45309', foreground='#FFFFFF', padding=(18, 12))
     style.map('Tool.Kasiski.TButton', background=[('active', '#92400E')])
+    style.configure('Action.TButton', font=('Segoe UI', 10, 'bold'), background='#0F766E', foreground='#FFFFFF', padding=(10, 6))
+    style.map('Action.TButton', background=[('active', '#115E59')])
+    style.configure('Shift.TButton', font=('Segoe UI', 10, 'bold'), background='#2563EB', foreground='#FFFFFF', padding=(10, 6))
+    style.map('Shift.TButton', background=[('active', '#1D4ED8')])
+    style.configure('Solve.TButton', font=('Segoe UI', 10, 'bold'), background='#B45309', foreground='#FFFFFF', padding=(10, 6))
+    style.map('Solve.TButton', background=[('active', '#92400E')])
+    style.configure('Reset.TButton', font=('Segoe UI', 10), background='#64748B', foreground='#FFFFFF', padding=(10, 6))
+    style.map('Reset.TButton', background=[('active', '#475569')])
 
 
 class CryptoToolboxApp:

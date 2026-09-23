@@ -19,6 +19,10 @@ CZECH_FREQ = {
 LETTERS = list(string.ascii_uppercase)
 
 
+def is_cipher_letter(character: str) -> bool:
+    return ('A' <= character <= 'Z') or ('a' <= character <= 'z')
+
+
 def caesar_shift_text(text: str, shift: int) -> str:
     shifted_chars = []
     shift = shift % 26
@@ -68,19 +72,19 @@ class BaseFrequencyAnalysisApp:
         self.text_widget = scrolledtext.ScrolledText(top_frame, width=70, height=10)
         self.text_widget.grid(row=1, column=0, columnspan=6, padx=0, pady=6)
 
-        btn_analyze = ttk.Button(top_frame, text='Analyzovat', command=self.analyze)
+        btn_analyze = ttk.Button(top_frame, text='Analyzovat', style='Action.TButton', command=self.analyze)
         btn_analyze.grid(row=2, column=0, pady=4)
 
-        btn_left = ttk.Button(top_frame, text='Posun vlevo', command=lambda: self.shift_text(-1))
+        btn_left = ttk.Button(top_frame, text='Posun vlevo', style='Shift.TButton', command=lambda: self.shift_text(-1))
         btn_left.grid(row=2, column=1, pady=4, padx=(10, 0))
 
-        btn_right = ttk.Button(top_frame, text='Posun vpravo', command=lambda: self.shift_text(1))
+        btn_right = ttk.Button(top_frame, text='Posun vpravo', style='Shift.TButton', command=lambda: self.shift_text(1))
         btn_right.grid(row=2, column=2, pady=4, padx=(8, 0))
 
-        btn_reset = ttk.Button(top_frame, text='Obnovit', command=self.reset_text)
+        btn_reset = ttk.Button(top_frame, text='Obnovit', style='Reset.TButton', command=self.reset_text)
         btn_reset.grid(row=2, column=3, pady=4, padx=(8, 0))
 
-        btn_undo = ttk.Button(top_frame, text='Zpět', command=self.undo)
+        btn_undo = ttk.Button(top_frame, text='Zpět', style='Reset.TButton', command=self.undo)
         btn_undo.grid(row=2, column=4, pady=4, padx=(8, 0))
 
         self.current_shift_label = ttk.Label(top_frame, text='Aktuální posun: 0')
@@ -234,11 +238,8 @@ class CaesarFrequencyAnalysisApp(BaseFrequencyAnalysisApp):
             self.analyze()
 
     def _build_mode_ui(self):
-        btn_solve = ttk.Button(self.top_frame, text='Použít posun', command=self.solve_shift)
+        btn_solve = ttk.Button(self.top_frame, text='Použít posun', style='Solve.TButton', command=self.solve_shift)
         btn_solve.grid(row=5, column=0, pady=4)
-
-        btn_map = ttk.Button(self.top_frame, text='Zobrazit mapování', command=self.show_mapping)
-        btn_map.grid(row=5, column=1, pady=4, padx=(8, 0))
 
     def analyze(self):
         text = self.text_widget.get('1.0', 'end').strip()
@@ -332,14 +333,11 @@ class VigenereFrequencyAnalysisApp(BaseFrequencyAnalysisApp):
         self.column_entry.grid(row=6, column=3, sticky='w', padx=(8, 0))
         self.column_entry.insert(0, '0')
 
-        btn_column = ttk.Button(self.top_frame, text='Analyzovat sloupec', command=self.analyze_column)
+        btn_column = ttk.Button(self.top_frame, text='Analyzovat sloupec', style='Action.TButton', command=self.analyze_column)
         btn_column.grid(row=6, column=4, pady=4, padx=(8, 0))
 
-        btn_solve_col = ttk.Button(self.top_frame, text='Použít na sloupec', command=self.solve_column_shift)
+        btn_solve_col = ttk.Button(self.top_frame, text='Použít na sloupec', style='Solve.TButton', command=self.solve_column_shift)
         btn_solve_col.grid(row=5, column=1, pady=4, padx=(8, 0))
-
-        btn_map = ttk.Button(self.top_frame, text='Zobrazit mapování', command=self.show_mapping)
-        btn_map.grid(row=5, column=2, pady=4, padx=(8, 0))
 
     def analyze(self):
         text = self.text_widget.get('1.0', 'end').strip()
@@ -359,9 +357,8 @@ class VigenereFrequencyAnalysisApp(BaseFrequencyAnalysisApp):
         self.info_label.config(text=f'Délka šifrovaného textu: {len(text)} znaků, písmen: {sum(ch.isalpha() for ch in text)}.')
 
     def analyze_column(self):
-        text = self.text_widget.get('1.0', 'end').strip()
-        if not text:
-            messagebox.showwarning('Chybí vstup', 'Zadejte šifrovaný text pro analýzu.')
+        if not self.base_text:
+            messagebox.showwarning('Nejprve analyzujte', 'Nejprve vložte celý šifrovaný text a zvolte Analyzovat.')
             return
 
         try:
@@ -375,7 +372,7 @@ class VigenereFrequencyAnalysisApp(BaseFrequencyAnalysisApp):
             messagebox.showwarning('Neplatný vstup', 'Číslo sloupce musí být v rozmezí 0 až délka klíče minus 1.')
             return
 
-        sanitized = ''.join(ch for ch in text.upper() if ch.isalpha())
+        sanitized = ''.join(ch for ch in self.base_text.upper() if is_cipher_letter(ch))
         selected = sanitized[col_idx::key_len]
 
         if not selected:
@@ -388,6 +385,8 @@ class VigenereFrequencyAnalysisApp(BaseFrequencyAnalysisApp):
         self.current_text_view = selected
         self.current_shift = 0
         self.current_shift_label.config(text=f'Aktuální posun: {self.current_shift}')
+        self.text_widget.delete('1.0', 'end')
+        self.text_widget.insert('1.0', selected)
 
         self.column_keylen = key_len
         self.column_index = col_idx
@@ -460,7 +459,7 @@ class VigenereFrequencyAnalysisApp(BaseFrequencyAnalysisApp):
         alpha_count = 0
 
         for ch in self.base_text:
-            if ch.isalpha():
+            if is_cipher_letter(ch):
                 if alpha_count % self.column_keylen == self.column_index:
                     d = decrypted_column[col_pos]
                     result_chars.append(d.upper() if ch.isupper() else d.lower())
