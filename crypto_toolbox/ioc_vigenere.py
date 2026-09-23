@@ -83,6 +83,10 @@ class IOCVisualizerApp:
         self.canvas.get_tk_widget().pack(fill='both', expand=True)
         self._draw_ioc_chart([])
 
+    def close(self):
+        plt.close(self.figure)
+        self.root.destroy()
+
     def _draw_ioc_chart(self, ioc_values: list[float]):
         self.ax.clear()
         positions = list(range(1, len(ioc_values) + 1))

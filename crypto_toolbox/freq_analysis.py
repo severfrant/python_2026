@@ -121,6 +121,10 @@ class BaseFrequencyAnalysisApp:
     def back(self):
         self.back_callback()
 
+    def close(self):
+        plt.close(self.figure)
+        self.root.destroy()
+
     def analyze(self):
         raise NotImplementedError('Subclasses must implement analyze()')
 
@@ -509,11 +513,19 @@ class FrequencyToolApp:
         self.root.title('Frekvenční analýza')
         self.root.state('zoomed')
         self.initial_text = initial_text
+        self.active_app = None
         self.show_menu()
 
     def clear_root(self):
+        if self.active_app is not None:
+            plt.close(self.active_app.figure)
+            self.active_app = None
         for child in self.root.winfo_children():
             child.destroy()
+
+    def close(self):
+        self.clear_root()
+        self.root.destroy()
 
     def show_menu(self):
         self.clear_root()
@@ -534,11 +546,11 @@ class FrequencyToolApp:
 
     def show_caesar(self):
         self.clear_root()
-        CaesarFrequencyAnalysisApp(self.root, self.show_menu, initial_text=self.initial_text)
+        self.active_app = CaesarFrequencyAnalysisApp(self.root, self.show_menu, initial_text=self.initial_text)
 
     def show_vigenere(self):
         self.clear_root()
-        VigenereFrequencyAnalysisApp(self.root, self.show_menu, initial_text=self.initial_text)
+        self.active_app = VigenereFrequencyAnalysisApp(self.root, self.show_menu, initial_text=self.initial_text)
 
 
 def main():

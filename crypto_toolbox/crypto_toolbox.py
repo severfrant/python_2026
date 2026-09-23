@@ -80,23 +80,23 @@ class CryptoToolboxApp:
     def open_frequency_tool(self):
         win = tk.Toplevel(self.root)
         win.state('zoomed')
-        win.protocol('WM_DELETE_WINDOW', self.close_application)
         injected = self.get_shared_ciphertext()
         app = FrequencyToolApp(win, initial_text=injected)
+        win.protocol('WM_DELETE_WINDOW', app.close)
 
     def open_ioc_tool(self):
         win = tk.Toplevel(self.root)
         win.state('zoomed')
-        win.protocol('WM_DELETE_WINDOW', self.close_application)
         injected = self.get_shared_ciphertext()
-        IOCVisualizerApp(win, initial_text=injected)
+        app = IOCVisualizerApp(win, initial_text=injected)
+        win.protocol('WM_DELETE_WINDOW', app.close)
 
     def open_kasiski_tool(self):
         win = tk.Toplevel(self.root)
         win.state('zoomed')
-        win.protocol('WM_DELETE_WINDOW', self.close_application)
         injected = self.get_shared_ciphertext()
-        KasiskiTestApp(win, initial_text=injected)
+        app = KasiskiTestApp(win, initial_text=injected)
+        win.protocol('WM_DELETE_WINDOW', app.close)
 
 
 def main():

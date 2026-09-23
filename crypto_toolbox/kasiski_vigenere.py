@@ -93,6 +93,10 @@ class KasiskiTestApp:
         self.canvas.get_tk_widget().pack(fill='both', expand=True)
         self._draw_candidates_chart([])
 
+    def close(self):
+        plt.close(self.figure)
+        self.root.destroy()
+
     def _draw_candidates_chart(self, candidates: list[tuple[int, int]]):
         self.ax.clear()
         positions = list(range(len(candidates)))
