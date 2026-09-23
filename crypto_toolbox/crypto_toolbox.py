@@ -7,55 +7,86 @@ from ioc_vigenere import IOCVisualizerApp
 from kasiski_vigenere import KasiskiTestApp
 
 
+def configure_school_theme(root: tk.Tk) -> None:
+    style = ttk.Style(root)
+    style.theme_use('clam')
+    style.configure('TFrame', background='#F5F7F2')
+    style.configure('TLabel', background='#F5F7F2', foreground='#1E2930', font=('Segoe UI', 11))
+    style.configure('Title.TLabel', font=('Segoe UI', 22, 'bold'), foreground='#164E63')
+    style.configure('Subtitle.TLabel', foreground='#475569')
+    style.configure('Tool.Frequency.TButton', font=('Segoe UI', 12, 'bold'), background='#0F766E', foreground='#FFFFFF', padding=(18, 12))
+    style.map('Tool.Frequency.TButton', background=[('active', '#115E59')])
+    style.configure('Tool.IOC.TButton', font=('Segoe UI', 12, 'bold'), background='#2563EB', foreground='#FFFFFF', padding=(18, 12))
+    style.map('Tool.IOC.TButton', background=[('active', '#1D4ED8')])
+    style.configure('Tool.Kasiski.TButton', font=('Segoe UI', 12, 'bold'), background='#B45309', foreground='#FFFFFF', padding=(18, 12))
+    style.map('Tool.Kasiski.TButton', background=[('active', '#92400E')])
+
+
 class CryptoToolboxApp:
     def __init__(self, root: tk.Tk):
         self.root = root
-        self.root.title('SlopSolver')
+        self.root.title('Kryptografická laboratoř')
         self.root.state('zoomed')
+        configure_school_theme(root)
+        self.root.protocol('WM_DELETE_WINDOW', self.close_application)
 
-        frame = ttk.Frame(root, padding=16)
+        frame = ttk.Frame(root, padding=(36, 28))
         frame.pack(fill='both', expand=True)
 
-        title = ttk.Label(frame, text='Crypto Toolbox', font=('Segoe UI', 16, 'bold'))
-        title.pack(pady=(0, 16))
+        ttk.Label(frame, text='Kryptografická laboratoř', style='Title.TLabel').pack(anchor='w')
+        ttk.Label(
+            frame,
+            text='Prozkoumejte šifrovaný text pomocí frekvenční analýzy, indexu koincidence a Kasiskiho testu.',
+            style='Subtitle.TLabel',
+        ).pack(anchor='w', pady=(4, 24))
 
-        ttk.Label(frame, text='Shared ciphertext for tools:').pack(anchor='w')
-        self.shared_text = scrolledtext.ScrolledText(frame, width=40, height=10)
-        self.shared_text.pack(pady=(0, 12))
+        ttk.Label(frame, text='Šifrovaný text pro analýzu:').pack(anchor='w')
+        self.shared_text = scrolledtext.ScrolledText(frame, width=72, height=10, font=('Segoe UI', 11))
+        self.shared_text.pack(fill='x', pady=(6, 20))
 
-        btn_freq = ttk.Button(frame, text='Frequency Analysis', width=24, command=self.open_frequency_tool)
-        btn_freq.pack(pady=4)
+        ttk.Label(frame, text='Vyberte metodu:').pack(anchor='w', pady=(0, 8))
+        btn_freq = ttk.Button(frame, text='Frekvenční analýza', width=30, style='Tool.Frequency.TButton', command=self.open_frequency_tool)
+        btn_freq.pack(anchor='w', pady=4)
 
-        btn_ioc = ttk.Button(frame, text='Vigenère IOC Visualizer', width=24, command=self.open_ioc_tool)
-        btn_ioc.pack(pady=4)
+        btn_ioc = ttk.Button(frame, text='Index koincidence', width=30, style='Tool.IOC.TButton', command=self.open_ioc_tool)
+        btn_ioc.pack(anchor='w', pady=4)
 
-        btn_kasiski = ttk.Button(frame, text='Kasiski Test Visualizer', width=24, command=self.open_kasiski_tool)
-        btn_kasiski.pack(pady=4)
+        btn_kasiski = ttk.Button(frame, text='Kasiskiho test', width=30, style='Tool.Kasiski.TButton', command=self.open_kasiski_tool)
+        btn_kasiski.pack(anchor='w', pady=4)
 
-        future = ttk.Label(frame, text='Future tools: ???', foreground='gray')
-        future.pack(pady=(18, 0))
+        ttk.Label(
+            frame,
+            text='Text zůstane při otevření vybraného nástroje k dispozici.',
+            style='Subtitle.TLabel',
+        ).pack(anchor='w', pady=(16, 0))
 
-        btn_quit = ttk.Button(frame, text='Quit', command=self.root.quit)
-        btn_quit.pack(side='bottom', pady=(12, 0))
+        btn_quit = ttk.Button(frame, text='Ukončit', command=self.close_application)
+        btn_quit.pack(anchor='w', pady=(22, 0))
 
     def get_shared_ciphertext(self) -> str:
         return self.shared_text.get('1.0', 'end').strip()
 
+    def close_application(self):
+        self.root.destroy()
+
     def open_frequency_tool(self):
         win = tk.Toplevel(self.root)
         win.state('zoomed')
+        win.protocol('WM_DELETE_WINDOW', self.close_application)
         injected = self.get_shared_ciphertext()
         app = FrequencyToolApp(win, initial_text=injected)
 
     def open_ioc_tool(self):
         win = tk.Toplevel(self.root)
         win.state('zoomed')
+        win.protocol('WM_DELETE_WINDOW', self.close_application)
         injected = self.get_shared_ciphertext()
         IOCVisualizerApp(win, initial_text=injected)
 
     def open_kasiski_tool(self):
         win = tk.Toplevel(self.root)
         win.state('zoomed')
+        win.protocol('WM_DELETE_WINDOW', self.close_application)
         injected = self.get_shared_ciphertext()
         KasiskiTestApp(win, initial_text=injected)
 
